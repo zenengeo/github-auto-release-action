@@ -10,7 +10,6 @@ async function run() {
         const stableDurationMs = parseDuration(core.getInput('stable-duration'));
         const forceDurationMs = parseDuration(core.getInput('force-duration'));
         const dryRun = core.getInput('dry-run').toLowerCase() === "true";
-        core.info(`dry-run=${dryRun}, input=${core.getInput('dry-run')}`);
 
         const octokit = github.getOctokit(token);
 

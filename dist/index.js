@@ -31458,7 +31458,6 @@ async function run() {
         const stableDurationMs = parse(coreExports.getInput('stable-duration'));
         const forceDurationMs = parse(coreExports.getInput('force-duration'));
         const dryRun = coreExports.getInput('dry-run').toLowerCase() === "true";
-        coreExports.info(`dry-run=${dryRun}, input=${coreExports.getInput('dry-run')}`);
 
         const octokit = githubExports.getOctokit(token);
 
