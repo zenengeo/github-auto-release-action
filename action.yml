@@ -1,0 +1,24 @@
+name: Github auto release
+description: Performs auto-releases based upon stable commits
+
+inputs:
+  stable-duration:
+    description: Amount of time to wait for no commits before auto-releasing
+    default: 7d
+  force-duration:
+    description: Max amount of time between releases when commits are pending
+    default: 28d
+  token:
+    description: Github token to use for release operations
+    default: ${{ github.token }}
+  dry-run:
+    description: Don't actually perform a release
+    default: "false"
+
+outputs:
+  release:
+    description: The release that was created or blank if not ready for release
+
+runs:
+  using: node20
+  main: dist/index.js

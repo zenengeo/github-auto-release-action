@@ -1,0 +1,30 @@
+{
+  "name": "github-action-auto-release",
+  "version": "1.0.0",
+  "description": "Github Action that performs auto-releases",
+  "keywords": [
+    "github",
+    "actions"
+  ],
+  "license": "MIT",
+  "author": "zenengeo",
+  "type": "module",
+  "main": "dist/index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "package": "rollup --config rollup.config.js"
+  },
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@actions/github": "^6.0.1",
+    "parse-duration": "^2.1.4"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.6",
+    "@rollup/plugin-node-resolve": "^16.0.2",
+    "rollup": "^4.52.4"
+  }
+}

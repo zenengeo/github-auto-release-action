@@ -1,0 +1,26 @@
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '20 13 * * *'
+
+jobs:
+  test_auto_release:
+    name: Test Auto Release
+    runs-on: ubuntu-latest
+
+    steps:
+      # To use this repository's private action,
+      # you must check out the repository
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Auto Release
+        uses: ./ # Uses an action in the root directory
+        id: autorelease
+        with:
+          dry-run: 'false'
+
+      - name: Get the release name created
+        run: echo "The release was ${{ steps.autorelease.outputs.release }}"
