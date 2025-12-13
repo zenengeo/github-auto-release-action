@@ -13,13 +13,14 @@ let owner = process.argv[2];
 let repo = process.argv[3];
 let stableDurationMs = parseDuration(process.argv[4]);
 let forceDurationMs = parseDuration(process.argv[5]);
+const dryRun = true;
 
 if (stableDurationMs > forceDurationMs) {
     console.warn("stable duration should be less than force duration usually")
 }
 
 const githubAutoReleaser = new GithubAutoReleaser(
-  octokit, owner, repo, false,
+  octokit, owner, repo, dryRun,
   (msg) => console.debug(msg)
 );
 const release = await githubAutoReleaser.autoCreateRelease(stableDurationMs, forceDurationMs);

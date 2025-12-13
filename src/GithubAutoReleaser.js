@@ -25,22 +25,29 @@ export default class GithubAutoReleaser {
         // get most recent commit
         const mostRecentCommit = await this.getMostRecentCommit();
 
-        // get most recent tag
-        const mostRecentTag = await this.getMostRecentTag();
+        // get most recent release and tag
+        const mostRecentRelease = await this.getMostRecentRelease();
+        const mostRecentTag = await this.getTag(
+          mostRecentRelease.tag_name
+        );
 
         // if recent commit sha != recent tag sha
-        if (mostRecentCommit.sha !== mostRecentTag.commit.sha) {
-            return await this.createReleaseWithAutoTagName(mostRecentTag, mostRecentCommit);
+        if (mostRecentCommit.sha !== mostRecentTag.sha) {
+            return await this.createReleaseWithAutoTagName(
+              mostRecentRelease.name,
+              mostRecentCommit
+            );
         } else {
             return null
         }
     }
 
     async handleForceRelease(forceDurationMs) {
-        const mostRecentTag = await this.getMostRecentTag();
-        // get most recent release/tag
-        this.logDebug(`Looking up release for most recent tag: ${mostRecentTag.name}`);
-        const mostRecentRelease = await this.getReleaseByTag(mostRecentTag)
+        // get the most recent release /tag
+        const mostRecentRelease = await this.getMostRecentRelease();
+        const mostRecentTag = await this.getTag(mostRecentRelease.tag_name);
+        this.logDebug(`Found most recent release: ${mostRecentRelease.name} at tag ${mostRecentTag.sha}`);
+        // const mostRecentRelease = await this.getReleaseByTag(mostRecentTag)
 
         const cutoff = Date.now() - forceDurationMs;
         // Using published_at to reflect most recent instance of a release, whereas
@@ -48,13 +55,13 @@ export default class GithubAutoReleaser {
         const releaseDate = new Date(mostRecentRelease.published_at);
         // if that release is older than force duration?
         if (releaseDate.getTime() < cutoff) {
-            // get most recent commit
+            // get the most recent commit
             const mostRecentCommit = await this.getMostRecentCommit();
 
             // if most recent commit newer/different than most recent release?
-            if (mostRecentCommit.sha !== mostRecentTag.commit.sha) {
+            if (mostRecentCommit.sha !== mostRecentTag.sha) {
                 // create release
-                return await this.createReleaseWithAutoTagName(mostRecentTag, mostRecentCommit);
+                return await this.createReleaseWithAutoTagName(mostRecentRelease.name, mostRecentCommit);
             }
 
         }
@@ -105,23 +112,22 @@ export default class GithubAutoReleaser {
         return commitsResp.data[0]
     }
 
-    async getMostRecentTag() {
-        const tagsResp = await this.octokit.rest.repos.listTags({
+    async getMostRecentRelease () {
+        const resp = await this.octokit.rest.repos.listReleases({
             owner: this.owner, repo: this.repo,
             per_page: 1
         })
-
-        return tagsResp.data[0]
+        return resp.data[0]
     }
 
-    calculateNewTagName(mostRecentTag) {
+    calculateNewTagName(mostRecentReleaseName) {
         // calculate new tag {yyyy}.{m} prefix
         const now = new Date();
         const prefix = `${now.getFullYear()}.${now.getMonth() + 1}.`;
 
         // if recent tag has same {yyyy}.{m} prefix
-        if (mostRecentTag.name.startsWith(prefix)) {
-            const mostRecentIncrement = Number(mostRecentTag.name.split('.')[2]);
+        if (mostRecentReleaseName.startsWith(prefix)) {
+            const mostRecentIncrement = Number(mostRecentReleaseName.split('.')[2]);
             // determine next available increment
             return prefix + (mostRecentIncrement+1);
         }
@@ -141,8 +147,8 @@ export default class GithubAutoReleaser {
         return releaseResp.data
     }
 
-    async createReleaseWithAutoTagName(mostRecentTag, mostRecentCommit) {
-        const tagName = this.calculateNewTagName(mostRecentTag);
+    async createReleaseWithAutoTagName(mostRecentReleaseName, mostRecentCommit) {
+        const tagName = this.calculateNewTagName(mostRecentReleaseName);
 
         // create release with new tag name, recent commit sha
         // TODO also check release named with tag name doesn't exist
@@ -153,5 +159,16 @@ export default class GithubAutoReleaser {
             date: new Date(mostRecentCommit.commit.committer.date),
             sha: mostRecentCommit.sha,
         }
+    }
+
+    async getTag (name) {
+        const resp = await this.octokit.rest.git.getRef({
+            owner: this.owner,
+            repo: this.repo,
+            ref: `tags/${name}`
+        })
+        return {
+            sha: resp.data.object.sha,
+        };
     }
 }
