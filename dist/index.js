@@ -31301,11 +31301,12 @@ class GithubAutoReleaser {
     repo;
     dryRun;
 
-    constructor(octokit, owner, repo, dryRun = false) {
+    constructor (octokit, owner, repo, dryRun = false, logDebug) {
         this.octokit = octokit;
         this.owner = owner;
         this.repo = repo;
         this.dryRun = dryRun;
+        this.logDebug = logDebug;
     }
 
     async autoCreateRelease(stableDurationMs, forceDurationMs) {
@@ -31335,6 +31336,7 @@ class GithubAutoReleaser {
     async handleForceRelease(forceDurationMs) {
         const mostRecentTag = await this.getMostRecentTag();
         // get most recent release/tag
+        this.logDebug(`Looking up release for most recent tag: ${mostRecentTag.name}`);
         const mostRecentRelease = await this.getReleaseByTag(mostRecentTag);
 
         const cutoff = Date.now() - forceDurationMs;
@@ -31468,7 +31470,8 @@ async function run() {
             octokit,
             owner,
             repo,
-            dryRun
+            dryRun,
+            (msg) => coreExports.debug(msg)
         );
 
         coreExports.debug(`Checking and performing auto release with stable duration: ${stableDurationMs} and force duration: ${forceDurationMs}`);
@@ -31493,7 +31496,7 @@ async function run() {
         }
 
     } catch (error) {
-        coreExports.setFailed(error.message);
+        coreExports.setFailed(error);
     }
 }
 
