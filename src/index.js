@@ -20,7 +20,8 @@ async function run() {
             octokit,
             owner,
             repo,
-            dryRun
+            dryRun,
+            (msg) => core.debug(msg)
         );
 
         core.debug(`Checking and performing auto release with stable duration: ${stableDurationMs} and force duration: ${forceDurationMs}`);
@@ -45,7 +46,7 @@ async function run() {
         }
 
     } catch (error) {
-        core.setFailed(error.message);
+        core.setFailed(error);
     }
 }
 

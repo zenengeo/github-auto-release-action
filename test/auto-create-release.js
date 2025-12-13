@@ -18,7 +18,10 @@ if (stableDurationMs > forceDurationMs) {
     console.warn("stable duration should be less than force duration usually")
 }
 
-const githubAutoReleaser = new GithubAutoReleaser(octokit, owner, repo);
+const githubAutoReleaser = new GithubAutoReleaser(
+  octokit, owner, repo, false,
+  (msg) => console.debug(msg)
+);
 const release = await githubAutoReleaser.autoCreateRelease(stableDurationMs, forceDurationMs);
 
 if (release) {
