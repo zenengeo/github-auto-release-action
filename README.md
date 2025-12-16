@@ -22,7 +22,7 @@ A release will be created after this duration even if commits have occurred with
 
 "Required"
 (Default uses the workflow's Github token)
-A Github token used to perform query and release operation on the repository.
+A Github token used to perform query and release operation on the repository. When needing to trigger another workflow that is triggered by a tag push, then specify a personal access token.
 
 ### `dry-run`
 
