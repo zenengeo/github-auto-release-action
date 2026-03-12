@@ -1,5 +1,8 @@
 name: Github auto release
 description: Performs auto-releases based upon stable commits
+branding:
+  icon: git-commit
+  color: blue
 
 inputs:
   stable-duration:
