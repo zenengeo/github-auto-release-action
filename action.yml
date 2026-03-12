@@ -22,5 +22,5 @@ outputs:
     description: The release that was created or blank if not ready for release
 
 runs:
-  using: node20
+  using: node24
   main: dist/index.js
